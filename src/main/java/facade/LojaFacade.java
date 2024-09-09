@@ -2,6 +2,10 @@ package facade;
 
 import dao.ProdutoDAO;
 import dao.SemiDeusDAO;
+import exceptions.DadosInvalidosException;
+import exceptions.EstoqueInsuficienteException;
+import exceptions.ProdutoNaoEncontradoException;
+import exceptions.SaldoInsuficienteException;
 import java.sql.Connection;
 import java.util.List;
 import model.Produto;
@@ -18,27 +22,34 @@ public class LojaFacade {
     }
 
     public void realizarCompra(int idSemideus, int idProduto, int quantidade) {
-        Semideus semideus = semiDeusDAO.buscarSemideusPorId(idSemideus);
-        Produto produto = produtoDAO.buscarProdutosDisponiveis()
-                .stream()
-                .filter(p -> p.getId() == idProduto)
-                .findFirst()
-                .orElse(null);
-
-        if (semideus != null && produto != null && produto.getQuantidadeEstoque() >= quantidade) {
-            double valorTotal = produto.getPreco() * quantidade;
-            if (semideus.getSaldoDracma() >= valorTotal) {
-                produto.setQuantidadeEstoque(produto.getQuantidadeEstoque() - quantidade);
-                semideus.setSaldoDracma(semideus.getSaldoDracma() - valorTotal);
-
-                semiDeusDAO.atualizarSaldo(semideus);
-                produtoDAO.atualizarEstoque(produto);
-            } else {
-                throw new RuntimeException("Saldo insuficiente.");
-            }
-        } else {
-            throw new RuntimeException("Produto não encontrado ou estoque insuficiente.");
+        if (quantidade <= 0) {
+            throw new DadosInvalidosException("A quantidade deve ser maior que zero.");
         }
+
+        Semideus semideus = semiDeusDAO.buscarSemideusPorId(idSemideus);
+        if (semideus == null) {
+            throw new DadosInvalidosException("Semideus não encontrado.");
+        }
+
+        Produto produto = produtoDAO.buscarProdutoPorId(idProduto);
+        if (produto == null) {
+            throw new ProdutoNaoEncontradoException("Produto não encontrado.");
+        }
+
+        if (produto.getQuantidadeEstoque() < quantidade) {
+            throw new EstoqueInsuficienteException("Estoque insuficiente para o produto solicitado.");
+        }
+
+        double valorTotal = produto.getPreco() * quantidade;
+        if (semideus.getSaldoDracma() < valorTotal) {
+            throw new SaldoInsuficienteException("Saldo insuficiente para realizar a compra.");
+        }
+
+        produto.atualizarEstoque(quantidade);
+        semideus.setSaldoDracma(semideus.getSaldoDracma() - valorTotal);
+
+        semiDeusDAO.atualizarSaldo(semideus);
+        produtoDAO.atualizarEstoque(produto);
     }
 
     public List<Produto> listarProdutosDisponiveis() {

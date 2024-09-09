@@ -4,6 +4,7 @@ module olimpo.arms {
     exports database;
     exports facade;
     exports model;
+    exports exceptions;
 
     requires transitive java.sql;
     requires javafx.fxml;
