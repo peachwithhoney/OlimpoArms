@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "LojaDeArmamentos",
+            "request": "launch",
+            "mainClass": "olimpo.arms/main.LojaDeArmamentos",
+            "projectName": "Project_OlimpoArms_4a6c894d",
+            "vmArgs": "--module-path \"C:/java/javafx-sdk-22.0.2/lib\" --add-modules javafx.controls,javafx.fxml"
+        }
+    ]
+}
