@@ -50,4 +50,24 @@ public class SemideusDAO {
             stmt.executeUpdate();
         }
     }
-}
+
+    public Semideus buscarSemideusPorId (int idSemideus) throws SQLException {
+        String query = "SELECT * FROM semideus WHERE id_semideus = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, idSemideus);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return new Semideus(
+                    rs.getInt("id_semideus"),
+                    rs.getString("nome"),
+                    rs.getString("chale"),
+                    rs.getDouble("saldo_dracma"),
+                    rs.getString("senha"),
+                    rs.getBoolean("is_administrador")
+                );
+            }
+        }
+        return null;
+    }
+    }
+

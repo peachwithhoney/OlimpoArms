@@ -13,11 +13,12 @@ public class BolsaDAO {
         this.connection = connection;
     }
 
-    public void adicionarItemNaBolsa(int idSemideus, int idItem) throws SQLException {
-        String query = "INSERT INTO bolsa (id_semideus, id_item) VALUES (?, ?)";
+    public void adicionarItemNaBolsa(int idSemideus, int idItem, int quantidade) throws SQLException {
+        String query = "INSERT INTO bolsa (id_semideus, id_item, quantidade) VALUES (?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, idSemideus);
             stmt.setInt(2, idItem);
+            stmt.setInt(3, quantidade);
             stmt.executeUpdate();
         }
     }

@@ -45,4 +45,13 @@ public class ItemDAO {
         }
         return null;
     }
+
+    public void atualizarEstoque(Item item) throws SQLException {
+        String query = "UPDATE item SET quantidade_estoque = ? WHERE id_item = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setInt(1, item.getQuantidadeEstoque()); 
+            stmt.setInt(2, item.getId()); 
+            stmt.executeUpdate();
+        }
+    }
 }

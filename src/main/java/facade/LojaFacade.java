@@ -1,15 +1,16 @@
 package facade;
 
+import dao.BolsaDAO;
 import dao.ItemDAO;
 import dao.SemideusDAO;
-import dao.BolsaDAO;
+import exceptions.EstoqueInsuficienteException;
+import exceptions.ProdutoNaoEncontradoException;
 import exceptions.SaldoInsuficienteException;
-import model.Item;
-import model.Semideus;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import model.Item;
+import model.Semideus;
 
 public class LojaFacade {
     private final SemideusDAO semideusDAO;
@@ -30,15 +31,29 @@ public class LojaFacade {
         return itemDAO.listarItens();
     }
 
-    public void comprarItem(int idSemideus, int idItem) throws SQLException, SaldoInsuficienteException {
+    public void comprarItem(int idSemideus, int idItem, int quantidade) throws SQLException, SaldoInsuficienteException, ProdutoNaoEncontradoException, EstoqueInsuficienteException {
         Semideus semideus = semideusDAO.buscarSemideusPorId(idSemideus);
         Item item = itemDAO.buscarItemPorId(idItem);
-        if (semideus.getSaldoDracma() < item.getPrecoDracma()) {
+        
+        if (item == null) {
+            throw new ProdutoNaoEncontradoException("Produto não encontrado.");
+        }
+
+        if (item.getQuantidadeEstoque() < quantidade) {
+            throw new EstoqueInsuficienteException("Estoque insuficiente.");
+        }
+
+        double valorTotal = item.getPrecoDracma() * quantidade;
+        if (semideus.getSaldoDracma() < valorTotal) {
             throw new SaldoInsuficienteException("Saldo insuficiente para comprar o item.");
         }
 
-        semideus.setSaldoDracma(semideus.getSaldoDracma() - item.getPrecoDracma());
+        semideus.setSaldoDracma(semideus.getSaldoDracma() - valorTotal);
+        item.setQuantidadeEstoque(item.getQuantidadeEstoque() - quantidade);
+
         semideusDAO.atualizarSaldo(semideus);
-        bolsaDAO.adicionarItemNaBolsa(idSemideus, idItem);
+        itemDAO.atualizarEstoque(item);
+
+        bolsaDAO.adicionarItemNaBolsa(idSemideus, idItem, quantidade);
     }
 }

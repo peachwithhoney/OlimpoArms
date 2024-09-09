@@ -8,6 +8,7 @@ import exceptions.SaldoInsuficienteException;
 import facade.LojaFacade;
 import java.awt.*;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import javax.swing.*;
 import model.Item;
@@ -20,7 +21,7 @@ public class LojaDeArmamentos {
     private JLabel lblStatus;
     private final LojaFacade lojaFacade;
 
-    public LojaDeArmamentos() {
+    public LojaDeArmamentos() throws SQLException {
         Connection connection = DatabaseConnectionFactory.getConnection();
         lojaFacade = new LojaFacade(connection);
         initialize();
@@ -65,11 +66,17 @@ public class LojaDeArmamentos {
         lblStatus.setBounds(10, 170, 350, 25);
         frame.getContentPane().add(lblStatus);
 
-        carregarItens();
+        try {
+            carregarItens();
+        } catch (SQLException e) {
+            e.printStackTrace(System.out);
+            lblStatus.setText("Erro ao carregar os itens: " + e.getMessage());
+        }
+
         frame.setVisible(true);
     }
 
-    private void carregarItens() {
+    private void carregarItens() throws SQLException {
         List<Item> itens = lojaFacade.listarItensDisponiveis();
         for (Item item : itens) {
             comboProdutos.addItem(item.getId() + " - " + item.getNomeItem());
@@ -82,26 +89,30 @@ public class LojaDeArmamentos {
             String itemSelecionado = (String) comboProdutos.getSelectedItem();
             int idItem = Integer.parseInt(itemSelecionado.split(" - ")[0]);
             int quantidade = Integer.parseInt(txtQuantidade.getText());
-
-            lojaFacade.realizarCompra(idSemideus, idItem, quantidade);
+    
+            lojaFacade.comprarItem(idSemideus, idItem, quantidade);
             lblStatus.setText("Compra realizada com sucesso!");
         } catch (NumberFormatException ex) {
             lblStatus.setText("Erro: Verifique os dados inseridos.");
-        } catch (SaldoInsuficienteException ex) {
-            lblStatus.setText("Erro: " + ex.getMessage());
-        } catch (ProdutoNaoEncontradoException ex) {
-            lblStatus.setText("Erro: " + ex.getMessage());
-        } catch (EstoqueInsuficienteException ex) {
+        } catch (SaldoInsuficienteException | ProdutoNaoEncontradoException | EstoqueInsuficienteException ex) {
             lblStatus.setText("Erro: " + ex.getMessage());
         } catch (ErroAoRegistrarTransacaoException ex) {
             lblStatus.setText("Erro ao registrar a transação: " + ex.getMessage());
         } catch (Exception ex) {
             lblStatus.setText("Erro desconhecido: " + ex.getMessage());
-            ex.printStackTrace();
+            ex.printStackTrace(System.out);
         }
     }
 
     public static void main(String[] args) {
-        EventQueue.invokeLater(() -> new LojaDeArmamentos());
+        EventQueue.invokeLater(() -> {
+            try {
+                new LojaDeArmamentos(); 
+            } catch (SQLException e) {
+                System.out.println("Erro ao iniciar a aplicação: " + e.getMessage());
+                e.printStackTrace(System.out);
+                JOptionPane.showMessageDialog(null, "Erro ao iniciar a aplicação: " + e.getMessage());
+            }
+        });
     }
 }
