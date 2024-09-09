@@ -1,68 +1,44 @@
 package facade;
 
-import dao.ProdutoDAO;
+import dao.ItemDAO;
 import dao.SemiDeusDAO;
-import dao.TransacaoDAO;
+import dao.BolsaDAO;
 import exceptions.SaldoInsuficienteException;
-import exceptions.ProdutoNaoEncontradoException;
-import exceptions.EstoqueInsuficienteException;
-import exceptions.ErroAoRegistrarTransacaoException;
-import model.Produto;
+import model.Item;
 import model.Semideus;
-import model.Transacao;
 
 import java.sql.Connection;
-import java.time.LocalDateTime;
+import java.sql.SQLException;
 import java.util.List;
 
 public class LojaFacade {
-    private SemiDeusDAO semideusDAO;
-    private final ProdutoDAO produtoDAO;
-    private final TransacaoDAO transacaoDAO;
+    private final SemiDeusDAO semideusDAO;
+    private ItemDAO itemDAO;
+    private BolsaDAO bolsaDAO;
 
     public LojaFacade(Connection connection) {
-        this.SemiDeusDAO = new SemiDeusDAO(connection);
-        this.produtoDAO = new ProdutoDAO(connection);
-        this.transacaoDAO = new TransacaoDAO(connection);
+        this.semideusDAO = new SemideusDAO(connection);
+        this.itemDAO = new ItemDAO(connection);
+        this.bolsaDAO = new BolsaDAO(connection);
     }
 
-    public void realizarCompra(int idSemideus, int idProduto, int quantidade) {
+    public Semideus login(String nome, String senha) throws SQLException {
+        return semideusDAO.buscarPorNomeESenha(nome, senha);
+    }
+
+    public List<Item> listarItensDisponiveis() throws SQLException {
+        return itemDAO.listarItens();
+    }
+
+    public void comprarItem(int idSemideus, int idItem) throws SQLException, SaldoInsuficienteException {
         Semideus semideus = semideusDAO.buscarSemideusPorId(idSemideus);
-        Produto produto = produtoDAO.buscarProdutosDisponiveis()
-                .stream()
-                .filter(p -> p.getId() == idProduto)
-                .findFirst()
-                .orElse(null);
-
-        if (semideus == null) {
-            throw new ProdutoNaoEncontradoException("Semideus não encontrado.");
+        Item item = itemDAO.buscarItemPorId(idItem);
+        if (semideus.getSaldoDracma() < item.getPrecoDracma()) {
+            throw new SaldoInsuficienteException("Saldo insuficiente para comprar o item.");
         }
 
-        if (produto == null || produto.getQuantidadeEstoque() < quantidade) {
-            throw new EstoqueInsuficienteException("Produto não encontrado ou estoque insuficiente.");
-        }
-
-        double valorTotal = produto.getPreco() * quantidade;
-
-        if (semideus.getSaldoDracma() < valorTotal) {
-            throw new SaldoInsuficienteException("Saldo insuficiente.");
-        }
-
-        produto.setQuantidadeEstoque(produto.getQuantidadeEstoque() - quantidade);
-        semideus.setSaldoDracma(semideus.getSaldoDracma() - valorTotal);
-
+        semideus.setSaldoDracma(semideus.getSaldoDracma() - item.getPrecoDracma());
         semideusDAO.atualizarSaldo(semideus);
-        produtoDAO.atualizarEstoque(produto);
-
-        try {
-            Transacao transacao = new Transacao(0, idSemideus, idProduto, quantidade, valorTotal, LocalDateTime.now());
-            transacaoDAO.registrarTransacao(transacao);
-        } catch (Exception e) {
-            throw new ErroAoRegistrarTransacaoException("Erro ao registrar a transação: " + e.getMessage());
-        }
-    }
-
-    public List<Produto> listarProdutosDisponiveis() {
-        return produtoDAO.buscarProdutosDisponiveis();
+        bolsaDAO.adicionarItemNaBolsa(idSemideus, idItem);
     }
 }
