@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import model.Semideus;
 
 public class SemiDeusDAO {
-
     private final Connection connection;
 
     public SemiDeusDAO(Connection connection) {
@@ -20,8 +19,12 @@ public class SemiDeusDAO {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return new Semideus(rs.getInt("id_semideus"), rs.getString("nome"),
-                                    rs.getString("deus_afiliado"), rs.getInt("nivel_poder"), rs.getDouble("saldo_dracma"));
+                return new Semideus(
+                    rs.getInt("id_semideus"),
+                    rs.getString("nome"),
+                    rs.getString("deus_afiliado"),
+                    rs.getDouble("saldo_dracma")
+                );
             }
         } catch (SQLException e) {
         }

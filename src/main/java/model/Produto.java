@@ -15,35 +15,13 @@ public class Produto {
         this.quantidadeEstoque = quantidadeEstoque;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public String getTipo() {
-        return tipo;
-    }
-
-    public double getPreco() {
-        return preco;
-    }
-
-    public int getQuantidadeEstoque() {
-        return quantidadeEstoque;
-    }
+    public int getId() { return id; }
+    public String getNome() { return nome; }
+    public String getTipo() { return tipo; }
+    public double getPreco() { return preco; }
+    public int getQuantidadeEstoque() { return quantidadeEstoque; }
 
     public void setQuantidadeEstoque(int quantidadeEstoque) {
         this.quantidadeEstoque = quantidadeEstoque;
-    }
-
-    public void atualizarEstoque(int quantidadeVendida) {
-        if (quantidadeVendida > 0 && quantidadeVendida <= this.quantidadeEstoque) {
-            this.quantidadeEstoque -= quantidadeVendida;  // Atualiza o estoque reduzindo pela quantidade vendida
-        } else {
-            throw new IllegalArgumentException("Quantidade inválida ou estoque insuficiente.");
-        }
     }
 }

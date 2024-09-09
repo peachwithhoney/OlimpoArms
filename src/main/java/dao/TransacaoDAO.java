@@ -3,28 +3,25 @@ package dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import model.Produto;
-import model.Semideus;
+import model.Transacao;
 
 public class TransacaoDAO {
-
     private final Connection connection;
 
     public TransacaoDAO(Connection connection) {
         this.connection = connection;
     }
 
-    // Método para registrar uma transação (compra)
-    public void registrarTransacao(Semideus semideus, Produto produto, int quantidade) {
-        String query = "INSERT INTO transacao (id_semideus, id_produto, quantidade_comprada, valor_total) VALUES (?, ?, ?, ?)";
+    public void registrarTransacao(Transacao transacao) {
+        String query = "INSERT INTO transacao (id_semideus, id_produto, quantidade, valor_total, data_hora) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setInt(1, semideus.getId());
-            stmt.setInt(2, produto.getId());
-            stmt.setInt(3, quantidade);
-            stmt.setDouble(4, produto.getPreco() * quantidade);
+            stmt.setInt(1, transacao.getIdSemideus());
+            stmt.setInt(2, transacao.getIdProduto());
+            stmt.setInt(3, transacao.getQuantidade());
+            stmt.setDouble(4, transacao.getValorTotal());
+            stmt.setTimestamp(5, java.sql.Timestamp.valueOf(transacao.getDataHora()));
             stmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 }

@@ -28,7 +28,7 @@ public class LojaController {
     @FXML
     private Label lblStatus;
     
-    private LojaFacade lojaFacade;
+    private final LojaFacade lojaFacade;
 
     public LojaController() {
         Connection connection = database.DatabaseConnectionFactory.getConnection();
@@ -43,7 +43,7 @@ public class LojaController {
     @FXML
     public void listarProdutos() {
         List<Produto> produtos = lojaFacade.listarProdutosDisponiveis();
-        comboProdutos.getItems().clear();  // Limpa a ComboBox antes de preencher novamente
+        comboProdutos.getItems().clear();  
 
         for (Produto produto : produtos) {
             comboProdutos.getItems().add(produto.getId() + " - " + produto.getNome());
@@ -58,34 +58,34 @@ public class LojaController {
 
     @FXML
     public void realizarCompra() {
-        String produtoSelecionado = comboProdutos.getSelectionModel().getSelectedItem();  // Produto selecionado na ComboBox
+        String produtoSelecionado = comboProdutos.getSelectionModel().getSelectedItem();  
 
         if (produtoSelecionado != null && !txtQuantidade.getText().isEmpty() && !txtIdSemideus.getText().isEmpty()) {
             try {
-                int idSemideus = Integer.parseInt(txtIdSemideus.getText());  // Converte o texto para ID do semideus
-                int idProduto = Integer.parseInt(produtoSelecionado.split(" - ")[0]);  // Extrai o ID do produto da ComboBox
-                int quantidade = Integer.parseInt(txtQuantidade.getText());  // Converte o texto para a quantidade de produtos
+                int idSemideus = Integer.parseInt(txtIdSemideus.getText()); 
+                int idProduto = Integer.parseInt(produtoSelecionado.split(" - ")[0]); 
+                int quantidade = Integer.parseInt(txtQuantidade.getText());  
 
-                lojaFacade.realizarCompra(idSemideus, idProduto, quantidade);  // Realiza a compra
+                lojaFacade.realizarCompra(idSemideus, idProduto, quantidade); 
                 lblStatus.setText("Compra realizada com sucesso!");
 
-                listarProdutos();  // Atualiza a lista de produtos após a compra
+                listarProdutos(); 
             } catch (SaldoInsuficienteException e) {
-                lblStatus.setText("Erro: " + e.getMessage());  // Mostra erro de saldo insuficiente
+                lblStatus.setText("Erro: " + e.getMessage()); 
             } catch (ProdutoNaoEncontradoException e) {
-                lblStatus.setText("Erro: " + e.getMessage());  // Mostra erro de produto não encontrado
+                lblStatus.setText("Erro: " + e.getMessage());  
             } catch (EstoqueInsuficienteException e) {
-                lblStatus.setText("Erro: " + e.getMessage());  // Mostra erro de estoque insuficiente
+                lblStatus.setText("Erro: " + e.getMessage()); 
             } catch (DadosInvalidosException e) {
-                lblStatus.setText("Erro: " + e.getMessage());  // Mostra erro de dados inválidos
+                lblStatus.setText("Erro: " + e.getMessage()); 
             } catch (NumberFormatException e) {
-                lblStatus.setText("Erro: Verifique os dados inseridos. Devem ser números.");  // Mostra erro de formato incorreto
+                lblStatus.setText("Erro: Verifique os dados inseridos. Devem ser números."); 
             } catch (Exception e) {
-                lblStatus.setText("Erro desconhecido: " + e.getMessage());  // Mostra erro desconhecido
-                e.printStackTrace();  // Mostra o erro no console para depuração
+                lblStatus.setText("Erro desconhecido: " + e.getMessage());
+                e.printStackTrace(); 
             }
         } else {
-            lblStatus.setText("Por favor, selecione um produto e preencha todos os campos.");  // Mostra mensagem de erro se os campos estiverem vazios
+            lblStatus.setText("Por favor, selecione um produto e preencha todos os campos."); 
         }
     }
 }

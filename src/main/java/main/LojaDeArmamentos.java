@@ -1,22 +1,107 @@
 package main;
 
-import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
+import database.DatabaseConnectionFactory;
+import exceptions.ErroAoRegistrarTransacaoException;
+import exceptions.EstoqueInsuficienteException;
+import exceptions.ProdutoNaoEncontradoException;
+import exceptions.SaldoInsuficienteException;
+import facade.LojaFacade;
+import java.awt.*;
+import java.sql.Connection;
+import java.util.List;
+import javax.swing.*;
+import model.Produto;
 
-public class LojaDeArmamentos extends Application {
+public class LojaDeArmamentos {
+    private JFrame frame;
+    private JComboBox<String> comboProdutos;
+    private JTextField txtQuantidade;
+    private JTextField txtIdSemideus;
+    private JLabel lblStatus;
+    private final LojaFacade lojaFacade;
 
-    @Override
-    public void start(Stage primaryStage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("/LojaView.fxml"));
-        primaryStage.setTitle("Loja de Armamentos para Semideuses");
-        primaryStage.setScene(new Scene(root, 600, 400));
-        primaryStage.show();
+    public LojaDeArmamentos() {
+        Connection connection = DatabaseConnectionFactory.getConnection();
+        lojaFacade = new LojaFacade(connection);
+        initialize();
+    }
+
+    private void initialize() {
+        frame = new JFrame("Loja de Armamentos para Semideuses");
+        frame.setBounds(100, 100, 400, 300);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.getContentPane().setLayout(null);
+
+        JLabel lblIdSemideus = new JLabel("ID do Semideus:");
+        lblIdSemideus.setBounds(10, 10, 150, 25);
+        frame.getContentPane().add(lblIdSemideus);
+
+        txtIdSemideus = new JTextField();
+        txtIdSemideus.setBounds(150, 10, 200, 25);
+        frame.getContentPane().add(txtIdSemideus);
+
+        JLabel lblProduto = new JLabel("Selecione o Produto:");
+        lblProduto.setBounds(10, 50, 150, 25);
+        frame.getContentPane().add(lblProduto);
+
+        comboProdutos = new JComboBox<>();
+        comboProdutos.setBounds(150, 50, 200, 25);
+        frame.getContentPane().add(comboProdutos);
+
+        JLabel lblQuantidade = new JLabel("Quantidade:");
+        lblQuantidade.setBounds(10, 90, 150, 25);
+        frame.getContentPane().add(lblQuantidade);
+
+        txtQuantidade = new JTextField();
+        txtQuantidade.setBounds(150, 90, 200, 25);
+        frame.getContentPane().add(txtQuantidade);
+
+        JButton btnComprar = new JButton("Comprar");
+        btnComprar.setBounds(150, 130, 100, 30);
+        btnComprar.addActionListener(e -> realizarCompra());
+        frame.getContentPane().add(btnComprar);
+
+        lblStatus = new JLabel("");
+        lblStatus.setBounds(10, 170, 350, 25);
+        frame.getContentPane().add(lblStatus);
+
+        carregarProdutos();
+        frame.setVisible(true);
+    }
+
+    private void carregarProdutos() {
+        List<Produto> produtos = lojaFacade.listarProdutosDisponiveis();
+        for (Produto produto : produtos) {
+            comboProdutos.addItem(produto.getId() + " - " + produto.getNome());
+        }
+    }
+
+    private void realizarCompra() {
+        try {
+            int idSemideus = Integer.parseInt(txtIdSemideus.getText());
+            String produtoSelecionado = (String) comboProdutos.getSelectedItem();
+            int idProduto = Integer.parseInt(produtoSelecionado.split(" - ")[0]);
+            int quantidade = Integer.parseInt(txtQuantidade.getText());
+
+            lojaFacade.realizarCompra(idSemideus, idProduto, quantidade);
+            lblStatus.setText("Compra realizada com sucesso!");
+        } catch (NumberFormatException ex) {
+            lblStatus.setText("Erro: Verifique os dados inseridos.");
+        } catch (SaldoInsuficienteException ex) {
+            lblStatus.setText("Erro: " + ex.getMessage());
+        } catch (ProdutoNaoEncontradoException ex) {
+            lblStatus.setText("Erro: " + ex.getMessage());
+        } catch (EstoqueInsuficienteException ex) {
+            lblStatus.setText("Erro: " + ex.getMessage());
+        } catch (ErroAoRegistrarTransacaoException ex) {
+            lblStatus.setText("Erro ao registrar a transação: " + ex.getMessage());
+        } catch (Exception ex) {
+            lblStatus.setText("Erro desconhecido: " + ex.getMessage());
+            ex.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {
-        launch(args);
+        EventQueue.invokeLater(() -> new LojaDeArmamentos());
     }
 }
