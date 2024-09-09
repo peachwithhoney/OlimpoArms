@@ -1,15 +1,13 @@
 package dao;
 
-import model.Bolsa;
-import model.Item;
-import model.Semideus;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import model.Bolsa;
+import model.Item;
 
 public class BolsaDAO {
-    private Connection connection;
+    private final Connection connection;
 
     public BolsaDAO(Connection connection) {
         this.connection = connection;

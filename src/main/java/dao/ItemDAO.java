@@ -1,12 +1,12 @@
 package dao;
 
-import model.Item;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import model.Item;
 
 public class ItemDAO {
-    private Connection connection;
+    private final Connection connection;
 
     public ItemDAO(Connection connection) {
         this.connection = connection;

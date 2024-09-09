@@ -2,13 +2,12 @@ package controller;
 
 import facade.LojaFacade;
 import model.Item;
-import model.Semideus;
 import exceptions.SaldoInsuficienteException;
 
 import java.util.List;
 
 public class LojaController {
-    private LojaFacade lojaFacade;
+    private final LojaFacade lojaFacade;
 
     public LojaController(LojaFacade lojaFacade) {
         this.lojaFacade = lojaFacade;

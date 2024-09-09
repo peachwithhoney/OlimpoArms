@@ -10,7 +10,7 @@ import java.awt.*;
 import java.sql.Connection;
 import java.util.List;
 import javax.swing.*;
-import model.Produto;
+import model.Item;
 
 public class LojaDeArmamentos {
     private JFrame frame;
@@ -40,7 +40,7 @@ public class LojaDeArmamentos {
         txtIdSemideus.setBounds(150, 10, 200, 25);
         frame.getContentPane().add(txtIdSemideus);
 
-        JLabel lblProduto = new JLabel("Selecione o Produto:");
+        JLabel lblProduto = new JLabel("Selecione o Item:");
         lblProduto.setBounds(10, 50, 150, 25);
         frame.getContentPane().add(lblProduto);
 
@@ -65,25 +65,25 @@ public class LojaDeArmamentos {
         lblStatus.setBounds(10, 170, 350, 25);
         frame.getContentPane().add(lblStatus);
 
-        carregarProdutos();
+        carregarItens();
         frame.setVisible(true);
     }
 
-    private void carregarProdutos() {
-        List<Produto> produtos = lojaFacade.listarProdutosDisponiveis();
-        for (Produto produto : produtos) {
-            comboProdutos.addItem(produto.getId() + " - " + produto.getNome());
+    private void carregarItens() {
+        List<Item> itens = lojaFacade.listarItensDisponiveis();
+        for (Item item : itens) {
+            comboProdutos.addItem(item.getId() + " - " + item.getNomeItem());
         }
     }
 
     private void realizarCompra() {
         try {
             int idSemideus = Integer.parseInt(txtIdSemideus.getText());
-            String produtoSelecionado = (String) comboProdutos.getSelectedItem();
-            int idProduto = Integer.parseInt(produtoSelecionado.split(" - ")[0]);
+            String itemSelecionado = (String) comboProdutos.getSelectedItem();
+            int idItem = Integer.parseInt(itemSelecionado.split(" - ")[0]);
             int quantidade = Integer.parseInt(txtQuantidade.getText());
 
-            lojaFacade.realizarCompra(idSemideus, idProduto, quantidade);
+            lojaFacade.realizarCompra(idSemideus, idItem, quantidade);
             lblStatus.setText("Compra realizada com sucesso!");
         } catch (NumberFormatException ex) {
             lblStatus.setText("Erro: Verifique os dados inseridos.");

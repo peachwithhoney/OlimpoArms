@@ -1,7 +1,7 @@
 package facade;
 
 import dao.ItemDAO;
-import dao.SemiDeusDAO;
+import dao.SemideusDAO;
 import dao.BolsaDAO;
 import exceptions.SaldoInsuficienteException;
 import model.Item;
@@ -12,9 +12,9 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class LojaFacade {
-    private final SemiDeusDAO semideusDAO;
-    private ItemDAO itemDAO;
-    private BolsaDAO bolsaDAO;
+    private final SemideusDAO semideusDAO;
+    private final ItemDAO itemDAO;
+    private final BolsaDAO bolsaDAO;
 
     public LojaFacade(Connection connection) {
         this.semideusDAO = new SemideusDAO(connection);

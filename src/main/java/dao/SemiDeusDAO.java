@@ -1,10 +1,10 @@
 package dao;
 
-import model.Semideus;
 import java.sql.*;
+import model.Semideus;
 
 public class SemideusDAO {
-    private Connection connection;
+    private final Connection connection;
 
     public SemideusDAO(Connection connection) {
         this.connection = connection;
