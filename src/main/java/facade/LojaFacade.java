@@ -1,25 +1,24 @@
 package facade;
 
 import dao.ProdutoDAO;
-import dao.SemideusDAO;
+import dao.SemiDeusDAO;
+import java.sql.Connection;
+import java.util.List;
 import model.Produto;
 import model.Semideus;
 
-import java.sql.Connection;
-import java.util.List;
-
 public class LojaFacade {
 
-    private final SemideusDAO semideusDAO;
+    private final SemiDeusDAO semiDeusDAO;
     private final ProdutoDAO produtoDAO;
 
     public LojaFacade(Connection connection) {
-        this.semideusDAO = new SemideusDAO(connection);
+        this.semiDeusDAO = new SemiDeusDAO(connection);
         this.produtoDAO = new ProdutoDAO(connection);
     }
 
     public void realizarCompra(int idSemideus, int idProduto, int quantidade) {
-        Semideus semideus = semideusDAO.buscarSemideusPorId(idSemideus);
+        Semideus semideus = semiDeusDAO.buscarSemideusPorId(idSemideus);
         Produto produto = produtoDAO.buscarProdutosDisponiveis()
                 .stream()
                 .filter(p -> p.getId() == idProduto)
@@ -32,7 +31,7 @@ public class LojaFacade {
                 produto.setQuantidadeEstoque(produto.getQuantidadeEstoque() - quantidade);
                 semideus.setSaldoDracma(semideus.getSaldoDracma() - valorTotal);
 
-                semideusDAO.atualizarSaldo(semideus);
+                semiDeusDAO.atualizarSaldo(semideus);
                 produtoDAO.atualizarEstoque(produto);
             } else {
                 throw new RuntimeException("Saldo insuficiente.");

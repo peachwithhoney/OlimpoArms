@@ -1,16 +1,16 @@
 package dao;
 
-import model.Semideus;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import model.Semideus;
 
-public class SemideusDAO {
+public class SemiDeusDAO {
 
     private final Connection connection;
 
-    public SemideusDAO(Connection connection) {
+    public SemiDeusDAO(Connection connection) {
         this.connection = connection;
     }
 
@@ -24,7 +24,6 @@ public class SemideusDAO {
                                     rs.getString("deus_afiliado"), rs.getInt("nivel_poder"), rs.getDouble("saldo_dracma"));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return null;
     }
@@ -36,7 +35,6 @@ public class SemideusDAO {
             stmt.setInt(2, semideus.getId());
             stmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 }

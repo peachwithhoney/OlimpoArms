@@ -35,7 +35,15 @@ public class Produto {
         return quantidadeEstoque;
     }
 
+    public void setQuantidadeEstoque(int quantidadeEstoque) {
+        this.quantidadeEstoque = quantidadeEstoque;
+    }
+
     public void atualizarEstoque(int quantidadeVendida) {
-        this.quantidadeEstoque -= quantidadeVendida;
+        if (quantidadeVendida > 0 && quantidadeVendida <= this.quantidadeEstoque) {
+            this.quantidadeEstoque -= quantidadeVendida;  // Atualiza o estoque reduzindo pela quantidade vendida
+        } else {
+            throw new IllegalArgumentException("Quantidade inválida ou estoque insuficiente.");
+        }
     }
 }
